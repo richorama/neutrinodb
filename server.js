@@ -1,6 +1,8 @@
 var express = require('express');
 var app = express();
 
+app.use(express.bodyParser());
+
 var odParser = require('odata-parser');
 var assert = require('assert');
 
@@ -10,6 +12,26 @@ var db = require('./lib/db');
 app.get("/", function(req, res){
 	db.readtables(function(data){
 		res.send(data);
+	});
+});
+
+app.put("/:table", function(req, res){
+	db.puttable(req.params.table, function(result){
+		if (result){
+			res.send(200);
+		} else {
+			res.send(500);
+		}
+	});
+});
+
+app.delete("/:table", function(req, res){
+	db.deltable(req.params.table, function(result){
+		if (result){
+			res.send(200);
+		} else {
+			res.send(500);
+		}		
 	});
 });
 
@@ -27,6 +49,17 @@ app.get("/:table/:key", function(req, res){
 	});
 });
 
+app.put("/:table/:key", function(req, res){
+	db.put(req.params.table, req.params.key, req.body, function(error, data){
+		res.send(data);
+	})
+});
+
+app.delete("/:table/:key", function(req, res){
+	db.del(req.params.table, req.params.key, function(error){
+		res.send(200);
+	});
+});
 
 
 function parseOptions(req){
