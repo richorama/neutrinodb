@@ -1,4 +1,5 @@
 var request = require('request');
+var qs = require('querystring');
 
 function NeutrinoConnector(address){
    this.address = address;
@@ -47,6 +48,30 @@ NeutrinoConnector.prototype.deleteTable = function(table, cb){
 	request.del(this.address + "/" + table, function(error, response, body){
 		if (error) console.log(error);
 		if (cb) cb(error);
+	});
+}
+
+NeutrinoConnector.prototype.query = function(table, query, options, cb){
+	if (!cb){
+		// options are optional!
+		cb = options;
+	}
+	var params = {};
+	if (query){
+		params["$filter"] = query;
+	}
+	if (options && options.top){
+		params["$top"] = options.top;
+	}
+	if (options && options.skip){
+		params["$skip"] = options.skip;
+	}
+
+	var url = this.address + "/" + table + "?" + qs.stringify(params);
+
+	request.get(url, function(error, response, body){
+		if (error) console.log(error);
+		cb(error, JSON.parse(body));
 	});
 }
 
@@ -99,6 +124,25 @@ neutrino.createTable('test', function(){
 		neutrino.get('NOT A TABLE', '1', function(error, entity){
 			assert(error);
 			assert(!entity);
+		});
+
+	});
+});
+
+neutrino.createTable('test2', function(){
+	neutrino.put('test2', '1', {foo:"A"});
+	neutrino.put('test2', '2', {foo:"B"});
+	neutrino.put('test2', '3', {foo:"C"});
+	neutrino.put('test2', '4', {foo:"A"}, function(){
+		neutrino.query('test2', "foo eq 'A'", function(error, data){
+			assert(data.length == 2);
+			assert(data[0].key == '1');
+			assert(data[1].key == '4');
+		});
+
+		neutrino.query('test2', "foo eq 'A'", { top: 1}, function(error, data){
+			assert(data.length == 1);
+			assert(data[0].key == '1');
 		});
 
 	});
