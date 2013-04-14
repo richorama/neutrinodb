@@ -75,8 +75,22 @@ NeutrinoConnector.prototype.query = function(table, query, options, cb){
 	});
 }
 
-var neutrino = new NeutrinoConnector("http://localhost:8080");
+NeutrinoConnector.prototype.registerView = function(name, table, query, cb){
+	request.put(this.address + "/view/" + table + "/" + name + "?$filter=" + query, function(error, response, body){
+		if (error) console.log(error);
+		if (cb) cb();
+	});
+}
 
+NeutrinoConnector.prototype.queryView = function(name, cb){
+	request.get(this.address + "/view/" + name, function(error, response, body){
+		if (error) console.log(error);
+		cb(error, JSON.parse(body));
+	});
+}
+
+
+var neutrino = new NeutrinoConnector("http://localhost:8080");
 
 
 
@@ -91,6 +105,7 @@ neutrino.createTable('newTable', function(error){
 		neutrino.deleteTable('newTable', function(){
 			neutrino.tables(function(error, data2){
 				assert(!listContains(data2, 'newTable'));
+				console.log("Test simple entity creation passed");
 			});
 		})
 	});
@@ -111,6 +126,7 @@ neutrino.createTable('test', function(){
 					assert(error2);
 					assert(!entity2);
 					neutrino.deleteTable('test');
+					console.log("Test simple entity creation passed");
 				});
 			});
 
@@ -143,8 +159,50 @@ neutrino.createTable('test2', function(){
 		neutrino.query('test2', "foo eq 'A'", { top: 1}, function(error, data){
 			assert(data.length == 1);
 			assert(data[0].key == '1');
+			console.log("Test querying passed");
 		});
 
+	});
+});
+
+
+neutrino.createTable('test3', function(){
+	neutrino.registerView('view1', 'test3', "active eq 'Y'", function(){
+		neutrino.put('test3', '1', {active: "N"});
+		neutrino.put('test3', '2', {active: "N"});
+		neutrino.put('test3', 'Z', {active: "Y"});
+		neutrino.put('test3', '4', {active: "N"});
+		neutrino.put('test3', '5', {active: "N"}, function(){
+			setTimeout(function(){
+				neutrino.queryView('view1', function(error, body){
+					assert(body.length == 1);
+					assert(body[0].key == "Z");
+					assert(body[0].active == 'Y');
+
+					console.log("Test view registration passed");
+				});
+			},1000);
+		});
+	});
+});
+
+
+neutrino.createTable('test4', function(){
+	neutrino.put('test4', '1', {active: "A"});
+	neutrino.put('test4', '2', {active: "A"});
+	neutrino.put('test4', '3', {active: "B"});
+	neutrino.put('test4', '4', {active: "A"});
+	neutrino.put('test4', '5', {active: "A"}, function(){
+		neutrino.registerView('view2', 'test4', "active eq 'B'", function(){
+
+			neutrino.queryView('view2', function(error, body){
+				assert(body.length == 1);
+				assert(body[0].key == "3");
+				assert(body[0].active == 'B');
+
+				console.log("Test view registration and index rebuild passed");
+			});
+		});
 	});
 });
 

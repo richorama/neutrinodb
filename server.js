@@ -9,6 +9,24 @@ var assert = require('assert');
 var db = require('./lib/db');
 
 
+app.put("/view/:table/:view", function(req, res){
+	var options = parseOptions(req);
+	if (!options.filter){
+		res.send(500);
+		return;
+	}
+	db.registerView(req.params.view, req.params.table, options.filter, function(){
+		res.send(200);
+	});
+});
+
+app.get("/view/:view", function(req, res){
+	db.queryView(req.params.view, function(error, data){
+		res.send(data);
+	});
+});
+
+
 app.get("/", function(req, res){
 	db.readtables(function(data){
 		res.send(data);
@@ -61,7 +79,6 @@ app.delete("/:table/:key", function(req, res){
 	});
 });
 
-
 function parseOptions(req){
 	var options = {skip:0};
 	if (req.query["$skip"]){
@@ -81,7 +98,6 @@ function parseOptions(req){
 	}
 	return options;
 }
-
 
 app.listen(8080);
 

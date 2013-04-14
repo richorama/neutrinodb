@@ -4,8 +4,10 @@
   "private": "true",
   "dependencies": {
     "levelup": "*",
-    "express":"*",
+    "express": "*",
     "odata-parser": "*",
-    "async": "*"
+    "async": "*",
+    "level-sublevel": "~4.4.0",
+    "level-mapped-index": "~0.2.3"
   }
 }
