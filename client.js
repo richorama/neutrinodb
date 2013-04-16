@@ -233,6 +233,16 @@ neutrino.createTable('test5', function(){
 
 				console.log("Test view registration and index rebuild passed");
 			});
+
+			neutrino.queryView('view3', "Z", function(error, body){
+				assert(body.length == 0);
+			});
+
+			neutrino.queryView('view3', "B", function(error, body){
+				assert(body.length == 1);
+			});
+
+
 		});
 	});
 });
