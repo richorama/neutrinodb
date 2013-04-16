@@ -82,8 +82,17 @@ NeutrinoConnector.prototype.registerView = function(name, table, query, cb){
 	});
 }
 
-NeutrinoConnector.prototype.queryView = function(name, cb){
-	request.get(this.address + "/view/" + name, function(error, response, body){
+NeutrinoConnector.prototype.queryView = function(name, value, cb){
+	if (!cb){
+		// value is optional;
+		cb = value;
+		value = undefined;
+	}
+	var url = this.address + "/view/" + name;
+	if (undefined != value){
+		url += "/" + value;
+	}
+	request.get(url, function(error, response, body){
 		if (error) console.log(error);
 		cb(error, JSON.parse(body));
 	});
@@ -173,7 +182,7 @@ neutrino.createTable('test3', function(){
 		neutrino.put('test3', 'Z', {active: "Y"});
 		neutrino.put('test3', '4', {active: "N"});
 		neutrino.put('test3', '5', {active: "N"}, function(){
-			setTimeout(function(){
+			//setTimeout(function(){
 				neutrino.queryView('view1', function(error, body){
 					assert(body.length == 1);
 					assert(body[0].key == "Z");
@@ -181,7 +190,7 @@ neutrino.createTable('test3', function(){
 
 					console.log("Test view registration passed");
 				});
-			},1000);
+			//},1000);
 		});
 	});
 });
@@ -205,6 +214,29 @@ neutrino.createTable('test4', function(){
 		});
 	});
 });
+
+neutrino.createTable('test5', function(){
+	neutrino.registerView('view3', 'test5', "test eq '?'", function(){
+
+		neutrino.put('test5', '1', {test: "A"});
+		neutrino.put('test5', '2', {test: "B"});
+		neutrino.put('test5', '3', {test: "C"});
+		neutrino.put('test5', '4', {test: "D"});
+		neutrino.put('test5', '5', {test: "D"}, function(){
+		
+			neutrino.queryView('view3', "D", function(error, body){
+				assert(body.length == 2);
+				assert(body[0].key == "4");
+				assert(body[0].test == 'D');
+				assert(body[1].key == "5");
+				assert(body[1].test == 'D');
+
+				console.log("Test view registration and index rebuild passed");
+			});
+		});
+	});
+});
+
 
 
 function listContains(list, item){

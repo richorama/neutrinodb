@@ -20,12 +20,11 @@ app.put("/view/:table/:view", function(req, res){
 	});
 });
 
-app.get("/view/:view", function(req, res){
-	db.queryView(req.params.view, function(error, data){
+app.get("/view/:view/:val?", function(req, res){
+	db.queryView(req.params.view, req.params.val, function(error, data){
 		res.send(data);
 	});
 });
-
 
 app.get("/", function(req, res){
 	db.readtables(function(data){
