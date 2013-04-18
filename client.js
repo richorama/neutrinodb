@@ -1,11 +1,13 @@
 var request = require('request');
 var qs = require('querystring');
 
-function NeutrinoConnector(address){
+module.exports.NeutrinoClient = NeutrinoClient;
+
+function NeutrinoClient(address){
    this.address = address;
 }
 
-NeutrinoConnector.prototype.get = function(table, key, cb){
+NeutrinoClient.prototype.get = function(table, key, cb){
 	request.get(this.address + "/" + table + "/" + key, function(error, response, body){
 		if (error) console.log(error);
 		if (body == undefined){
@@ -16,45 +18,46 @@ NeutrinoConnector.prototype.get = function(table, key, cb){
 	});
 }
 
-NeutrinoConnector.prototype.put = function(table, key, entity, cb){
+NeutrinoClient.prototype.put = function(table, key, entity, cb){
 	request.put(this.address + "/" + table + "/" + key, {json:entity}, function(error, response, body){
 		if (error) console.log(error);
 		if (cb) cb(error);
 	});
 }
 
-NeutrinoConnector.prototype.del = function(table, key, cb){
+NeutrinoClient.prototype.del = function(table, key, cb){
 	request.del(this.address + "/" + table + "/" + key, function(error, response, body){
 		if (error) console.log(error);
 		if (cb) cb(error);
 	});
 }
 
-NeutrinoConnector.prototype.tables = function(cb){
+NeutrinoClient.prototype.tables = function(cb){
 	request.get(this.address + "/", function(error, response, body){
 		if (error) console.log(error);
 		cb(error, JSON.parse(body));
 	});
 }
 
-NeutrinoConnector.prototype.createTable = function(table, cb){
+NeutrinoClient.prototype.createTable = function(table, cb){
 	request.put(this.address + "/" + table, function(error, response, body){
 		if (error) console.log(error);
 		if (cb) cb(error);
 	});
 }
 
-NeutrinoConnector.prototype.deleteTable = function(table, cb){
+NeutrinoClient.prototype.deleteTable = function(table, cb){
 	request.del(this.address + "/" + table, function(error, response, body){
 		if (error) console.log(error);
 		if (cb) cb(error);
 	});
 }
 
-NeutrinoConnector.prototype.query = function(table, query, options, cb){
+NeutrinoClient.prototype.query = function(table, query, options, cb){
 	if (!cb){
 		// options are optional!
 		cb = options;
+		options = undefined;
 	}
 	var params = {};
 	if (query){
@@ -75,14 +78,14 @@ NeutrinoConnector.prototype.query = function(table, query, options, cb){
 	});
 }
 
-NeutrinoConnector.prototype.registerView = function(name, table, query, cb){
+NeutrinoClient.prototype.registerView = function(name, table, query, cb){
 	request.put(this.address + "/view/" + table + "/" + name + "?$filter=" + query, function(error, response, body){
 		if (error) console.log(error);
 		if (cb) cb();
 	});
 }
 
-NeutrinoConnector.prototype.queryView = function(name, value, cb){
+NeutrinoClient.prototype.queryView = function(name, value, cb){
 	if (!cb){
 		// value is optional;
 		cb = value;
@@ -98,10 +101,8 @@ NeutrinoConnector.prototype.queryView = function(name, value, cb){
 	});
 }
 
-
-var neutrino = new NeutrinoConnector("http://localhost:8080");
-
-
+return;
+var neutrino = new NeutrinoClient("http://localhost:8080");
 
 /* UNIT TESTS */
 

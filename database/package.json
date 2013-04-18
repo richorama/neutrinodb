@@ -1,0 +1,13 @@
+{
+  "name": "neutrino-server",
+  "version": "0.0.1",
+  "private": "true",
+  "dependencies": {
+    "levelup": "*",
+    "express": "*",
+    "odata-parser": "*",
+    "async": "*",
+    "level-sublevel": "~4.4.0",
+    "level-mapped-index": "~0.2.3"
+  }
+}
