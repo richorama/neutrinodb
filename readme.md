@@ -39,7 +39,9 @@ $ npm install neutrinodb
 In your node application you can create a database client like this:
 
 ```
-var client = require('neutrino')('http://localhost:8080/');
+// create a neutrino client, by specifying the location of the server 
+// (no trailing slash)
+var client = require('neutrino')('http://localhost:8080');
 ```
 
 Create, list and delete tables
