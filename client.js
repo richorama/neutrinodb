@@ -1,7 +1,9 @@
 var request = require('request');
 var qs = require('querystring');
 
-module.exports.NeutrinoClient = NeutrinoClient;
+module.exports = function(url){
+	return new NeutrinoClient(url);
+};
 
 function NeutrinoClient(address){
    this.address = address;
@@ -54,6 +56,12 @@ NeutrinoClient.prototype.deleteTable = function(table, cb){
 }
 
 NeutrinoClient.prototype.query = function(table, query, options, cb){
+	if (!options && !cb){
+		// query is optional
+		options = query;
+		query = undefined;
+	}
+
 	if (!cb){
 		// options are optional!
 		cb = options;
