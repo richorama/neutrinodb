@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "contributors": ["Richard Astbury <richard.astbury@gmail.com> (https://github.com/richorama)"],
   "keywords": ["leveldb", "levelup", "database", "storage", "json", "db", "document", "index"],
-  "private": "false",
   "main": "client.js",
   "dependencies": {
     "request": "*"
