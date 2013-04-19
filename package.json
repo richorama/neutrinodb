@@ -1,9 +1,17 @@
 {
-  "name": "neutrino-client",
+  "name": "neutrinodb",
+  "description": "A json document database built on node.js and leveldb",
   "version": "0.0.1",
-  "private": "true",
+  "contributors": ["Richard Astbury <richard.astbury@gmail.com> (https://github.com/richorama)"],
+  "keywords": ["leveldb", "levelup", "database", "storage", "json", "db", "document", "index"],
+  "private": "false",
   "main": "client.js",
   "dependencies": {
     "request": "*"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/richorama/neutrinodb.git"
+  },
+  "license": "MIT"
 }
